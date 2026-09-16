@@ -95,32 +95,61 @@
 
 /* ---------- glass UI (opt-in, off by default) ---------- */
 
+/* Firefox doesn't reliably clip backdrop-filter to border-radius, so without
+   overflow: hidden the blur renders as a sharp rectangle poking past the
+   rounded corners instead of following the panel's shape. */
 :root[data-glass] .toolbar,
 :root[data-glass] .workspace-switcher-trigger,
 :root[data-glass] .workspace-switcher-menu,
 :root[data-glass] .zoom-control,
 :root[data-glass] .assistant-toggle,
 :root[data-glass] .assistant-panel,
-:root[data-glass] .modal-panel {
-  background: color-mix(in srgb, var(--paper) 55%, transparent);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
+:root[data-glass] .modal-panel,
+:root[data-glass] .toolbar-btn,
+:root[data-glass] .toolbar-icon-btn,
+:root[data-glass] .zoom-btn,
+:root[data-glass] .zoom-value,
+:root[data-glass] .assistant-model-btn,
+:root[data-glass] .assistant-message.assistant {
+  overflow: hidden;
+  /* Mostly-opaque fallback for browsers/configs where backdrop-filter doesn't
+     apply at all, so it still looks intentional instead of a flat, unblurred
+     see-through panel. Replaced below wherever backdrop-filter is actually supported. */
+  background: color-mix(in srgb, var(--paper) 92%, transparent);
 }
 
 :root[data-glass] .toolbar-btn,
 :root[data-glass] .toolbar-icon-btn,
 :root[data-glass] .zoom-btn,
 :root[data-glass] .zoom-value,
-:root[data-glass] .assistant-model-btn {
-  background: color-mix(in srgb, var(--paper-raised) 55%, transparent);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+:root[data-glass] .assistant-model-btn,
+:root[data-glass] .assistant-message.assistant {
+  background: color-mix(in srgb, var(--paper-raised) 92%, transparent);
 }
 
-:root[data-glass] .assistant-message.assistant {
-  background: color-mix(in srgb, var(--paper-raised) 60%, transparent);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+  :root[data-glass] .toolbar,
+  :root[data-glass] .workspace-switcher-trigger,
+  :root[data-glass] .workspace-switcher-menu,
+  :root[data-glass] .zoom-control,
+  :root[data-glass] .assistant-toggle,
+  :root[data-glass] .assistant-panel,
+  :root[data-glass] .modal-panel {
+    background: color-mix(in srgb, var(--paper) 55%, transparent);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+  }
+
+  :root[data-glass] .toolbar-btn,
+  :root[data-glass] .toolbar-icon-btn,
+  :root[data-glass] .zoom-btn,
+  :root[data-glass] .zoom-value,
+  :root[data-glass] .assistant-model-btn,
+  :root[data-glass] .assistant-message.assistant {
+    background: color-mix(in srgb, var(--paper-raised) 55%, transparent);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
 }
 
 html,
@@ -857,6 +886,11 @@ body.no-select {
   border-radius: 12px;
   box-shadow: var(--shadow-card);
   transition: box-shadow 0.15s ease, transform 0.1s ease;
+  /* Firefox can leak a sliver of a scrollable descendant's boundary (e.g. the
+     kanban board's horizontal scroll) outside a rotated ancestor's clipped
+     bounds - promoting this to its own compositing layer avoids it. */
+  will-change: transform;
+  isolation: isolate;
 }
 
 .card::before {
@@ -1203,6 +1237,16 @@ body.no-select {
   gap: 10px;
   height: 100%;
   overflow-x: auto;
+  /* Firefox's native scrollbar widget for a horizontally-scrolling descendant
+     doesn't respect the card's rotate() transform and paints a stray line
+     outside it. Hiding the bar removes the widget entirely (still scrolls
+     fine via trackpad/shift+wheel/drag) - more reliable than fighting Gecko's
+     scrollbar-in-a-transform rendering across versions. */
+  scrollbar-width: none;
+}
+
+.kanban-board::-webkit-scrollbar {
+  display: none;
 }
 
 .kanban-column {
