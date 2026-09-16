@@ -1,122 +1,74 @@
-import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import './App.css'
+import { useEffect } from 'react'
+import { Canvas } from './canvas/Canvas'
+import { Toolbar } from './components/Toolbar'
+import { WorkspaceSwitcher } from './components/WorkspaceSwitcher'
+import { AssistantPanel } from './assistant/AssistantPanel'
+import { useWorkspaceStore } from './store/workspace'
+import { useWorkspaceRegistry } from './store/workspaceRegistry'
+import { loadSettings, useSettingsStore } from './store/settings'
 
-function App() {
-  const [count, setCount] = useState(0)
+export default function App() {
+  const hydrated = useWorkspaceStore((s) => s.hydrated)
+  const initRegistry = useWorkspaceRegistry((s) => s.init)
+
+  const settingsHydrated = useSettingsStore((s) => s.hydrated)
+  const hydrateSettings = useSettingsStore((s) => s.hydrate)
+  const fontId = useSettingsStore((s) => s.fontId)
+  const theme = useSettingsStore((s) => s.theme)
+  const background = useSettingsStore((s) => s.background)
+  const glassUI = useSettingsStore((s) => s.glassUI)
+
+  useEffect(() => {
+    void initRegistry()
+  }, [initRegistry])
+
+  useEffect(() => {
+    void loadSettings().then(hydrateSettings)
+  }, [hydrateSettings])
+
+  useEffect(() => {
+    if (!settingsHydrated) return
+    document.documentElement.setAttribute('data-font', fontId)
+  }, [settingsHydrated, fontId])
+
+  useEffect(() => {
+    if (!settingsHydrated) return
+    const root = document.documentElement
+    function applyResolvedTheme() {
+      const resolved =
+        theme === 'system' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : theme
+      root.setAttribute('data-theme', resolved)
+    }
+    applyResolvedTheme()
+    if (theme !== 'system') return
+    const mq = window.matchMedia('(prefers-color-scheme: dark)')
+    mq.addEventListener('change', applyResolvedTheme)
+    return () => mq.removeEventListener('change', applyResolvedTheme)
+  }, [settingsHydrated, theme])
+
+  // Only the preset-color CSS variables are applied here; the actual visual
+  // background (including the camera-following dot texture, or a custom image)
+  // is rendered by Canvas.tsx itself, since it needs the live pan offset.
+  useEffect(() => {
+    if (!settingsHydrated || background.type !== 'preset') return
+    document.documentElement.setAttribute('data-bg', background.id)
+  }, [settingsHydrated, background])
+
+  useEffect(() => {
+    if (!settingsHydrated) return
+    document.documentElement.toggleAttribute('data-glass', glassUI)
+  }, [settingsHydrated, glassUI])
+
+  if (!hydrated) {
+    return null
+  }
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
-
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
+    <div className="app">
+      <WorkspaceSwitcher />
+      <Toolbar />
+      <Canvas />
+      <AssistantPanel />
+    </div>
   )
 }
-
-export default App
