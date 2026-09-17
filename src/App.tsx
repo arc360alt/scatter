@@ -2,14 +2,19 @@ import { useEffect } from 'react'
 import { Canvas } from './canvas/Canvas'
 import { Toolbar } from './components/Toolbar'
 import { WorkspaceSwitcher } from './components/WorkspaceSwitcher'
+import { ConflictModal } from './components/ConflictModal'
+import { CloudSyncButtons } from './components/CloudSyncButtons'
+import { Toast } from './components/Toast'
 import { AssistantPanel } from './assistant/AssistantPanel'
 import { useWorkspaceStore } from './store/workspace'
 import { useWorkspaceRegistry } from './store/workspaceRegistry'
 import { loadSettings, useSettingsStore } from './store/settings'
+import { useCloudStore } from './store/cloud'
 
 export default function App() {
   const hydrated = useWorkspaceStore((s) => s.hydrated)
   const initRegistry = useWorkspaceRegistry((s) => s.init)
+  const initCloud = useCloudStore((s) => s.init)
 
   const settingsHydrated = useSettingsStore((s) => s.hydrated)
   const hydrateSettings = useSettingsStore((s) => s.hydrate)
@@ -21,6 +26,10 @@ export default function App() {
   useEffect(() => {
     void initRegistry()
   }, [initRegistry])
+
+  useEffect(() => {
+    void initCloud()
+  }, [initCloud])
 
   useEffect(() => {
     void loadSettings().then(hydrateSettings)
@@ -69,6 +78,9 @@ export default function App() {
       <Toolbar />
       <Canvas />
       <AssistantPanel />
+      <ConflictModal />
+      <CloudSyncButtons />
+      <Toast />
     </div>
   )
 }

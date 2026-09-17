@@ -84,6 +84,7 @@ interface RegistryState extends Registry {
   init: () => Promise<void>
   createWorkspace: (name: string) => Promise<void>
   importWorkspace: (name: string, workspace: Workspace) => Promise<void>
+  adoptCloudWorkspace: (id: string, name: string) => void
   renameWorkspace: (id: string, name: string) => void
   deleteWorkspace: (id: string) => Promise<void>
   switchWorkspace: (id: string) => Promise<void>
@@ -125,6 +126,18 @@ export const useWorkspaceRegistry = create<RegistryState>((set, get) => ({
     persistRegistry(next)
     useWorkspaceStore.getState().hydrate(workspace, id)
     flushSave()
+  },
+
+  // Registers a workspace pulled down from cloud sync that this device has never
+  // seen before. Its card/viewport data is written directly to local storage by
+  // the caller (cloud.ts) - this just makes it show up in the switcher. Doesn't
+  // change the active workspace, so a background pull never yanks focus away
+  // from whatever the user is currently looking at.
+  adoptCloudWorkspace: (id, name) => {
+    if (get().workspaces.some((w) => w.id === id)) return
+    const next: Registry = { activeId: get().activeId, workspaces: [...get().workspaces, { id, name }] }
+    set(next)
+    persistRegistry(next)
   },
 
   renameWorkspace: (id, name) => {

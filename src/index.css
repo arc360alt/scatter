@@ -701,6 +701,176 @@ body.no-select {
   font-style: italic;
 }
 
+/* ---------- account / cloud sync ---------- */
+
+.account-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.account-input {
+  border: 1.5px solid var(--paper-edge);
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 13px;
+  background: var(--paper-raised);
+  color: var(--ink);
+  outline: none;
+}
+
+.account-input:focus {
+  border-color: var(--terracotta);
+}
+
+.account-form-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+
+.account-mode-toggle {
+  border: none;
+  background: none;
+  color: var(--ink-soft);
+  font-size: 11.5px;
+  text-decoration: underline;
+}
+
+.account-error {
+  margin: 0;
+  font-size: 12px;
+  color: var(--terracotta);
+  font-weight: 600;
+}
+
+.account-usage {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.account-sync-interval {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+  font-size: 12px;
+  color: var(--ink-soft);
+}
+
+.account-sync-interval-input {
+  width: 52px;
+  padding: 4px 6px;
+  text-align: center;
+}
+
+.account-usage-track {
+  flex: 1;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--paper-edge);
+  overflow: hidden;
+}
+
+.account-usage-fill {
+  height: 100%;
+  background: var(--olive);
+  transition: width 0.2s ease;
+}
+
+.account-usage-fill.warn {
+  background: var(--mustard);
+}
+
+.account-usage-fill.over {
+  background: var(--terracotta);
+}
+
+.account-devices {
+  margin-top: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.account-devices-heading {
+  margin: 0;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--ink-soft);
+}
+
+.account-device-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 0;
+  border-top: 1.5px solid var(--paper-edge);
+}
+
+.account-device-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.account-device-tag {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--olive);
+  border: 1.5px solid var(--olive);
+  border-radius: 999px;
+  padding: 1px 6px;
+}
+
+/* ---------- conflict modal ---------- */
+
+.conflict-panel {
+  max-width: 420px;
+}
+
+.conflict-options {
+  display: flex;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.conflict-option {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: flex-start;
+  border: 2px solid var(--ink);
+  border-radius: 10px;
+  background: var(--paper-raised);
+  padding: 12px;
+  font-size: 13px;
+  color: var(--ink);
+}
+
+.conflict-option:hover {
+  background: var(--mustard);
+}
+
+.conflict-option strong {
+  font-family: var(--font-display);
+  font-size: 18px;
+}
+
 .image-library-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(64px, 1fr));
@@ -1372,6 +1542,85 @@ body.no-select {
 }
 
 /* ---------- assistant panel ---------- */
+
+.toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2100;
+  background: var(--ink);
+  color: var(--paper);
+  border-radius: 10px;
+  padding: 10px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  box-shadow: var(--shadow-card-lift);
+  max-width: min(360px, calc(100vw - 32px));
+  text-align: center;
+  animation: toast-in 0.15s ease;
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 8px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+.cloud-sync-buttons {
+  position: fixed;
+  top: 18px;
+  right: 18px;
+  z-index: 1000;
+  display: flex;
+  gap: 8px;
+}
+
+.cloud-sync-btn {
+  position: relative;
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--ink);
+  background: var(--paper);
+  color: var(--ink);
+  border-radius: 999px;
+  font-size: 15px;
+  box-shadow: var(--shadow-card);
+}
+
+.cloud-sync-btn:hover:not(:disabled) {
+  background: var(--mustard);
+}
+
+.cloud-sync-btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.cloud-sync-btn.cooldown {
+  opacity: 0.75;
+  color: var(--ink-soft);
+}
+
+.cloud-sync-btn.pending::after {
+  content: '';
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: var(--terracotta);
+  border: 2px solid var(--paper);
+}
 
 .assistant-toggle {
   position: fixed;

@@ -6,6 +6,7 @@ import { resizeImageToBlob } from '../lib/imageResize'
 import { saveImageBlob } from '../lib/imageStore'
 import { useBlobImageUrl } from '../lib/useBlobImageUrl'
 import { ImageLibrarySection } from './ImageLibrarySection'
+import { AccountSection } from './AccountSection'
 
 const FONT_OPTIONS: { id: FontId; label: string; blurb: string }[] = [
   { id: 'handwritten', label: 'Handwritten', blurb: 'Playful cursive titles (default)' },
@@ -169,6 +170,8 @@ export function SettingsModal({ onClose }: { onClose: () => void }) {
               onToggle={toggleAiEnabled}
             />
           </section>
+
+          <AccountSection />
         </div>
       </div>
     </div>

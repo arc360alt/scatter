@@ -14,10 +14,14 @@ export interface Settings {
   editMode: boolean
   glassUI: boolean
   aiEnabled: boolean
+  cloudAutoSaveIntervalMinutes: number
 }
 
 const STORAGE_KEY = 'scatter-settings-v1'
 const SAVE_DEBOUNCE_MS = 200
+
+export const CLOUD_AUTO_SAVE_MIN_MINUTES = 2
+export const CLOUD_AUTO_SAVE_MAX_MINUTES = 60
 
 const DEFAULT_SETTINGS: Settings = {
   fontId: 'handwritten',
@@ -26,6 +30,7 @@ const DEFAULT_SETTINGS: Settings = {
   editMode: true,
   glassUI: false,
   aiEnabled: true,
+  cloudAutoSaveIntervalMinutes: 5,
 }
 
 export async function loadSettings(): Promise<Settings> {
@@ -51,6 +56,7 @@ interface SettingsState extends Settings {
   toggleEditMode: () => void
   toggleGlassUI: () => void
   toggleAiEnabled: () => void
+  setCloudAutoSaveIntervalMinutes: (minutes: number) => void
 }
 
 // Deletes the previous background image's blob (if any) so switching presets
@@ -82,6 +88,13 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
   toggleEditMode: () => set((s) => ({ editMode: !s.editMode })),
   toggleGlassUI: () => set((s) => ({ glassUI: !s.glassUI })),
   toggleAiEnabled: () => set((s) => ({ aiEnabled: !s.aiEnabled })),
+  setCloudAutoSaveIntervalMinutes: (minutes) =>
+    set({
+      cloudAutoSaveIntervalMinutes: Math.min(
+        CLOUD_AUTO_SAVE_MAX_MINUTES,
+        Math.max(CLOUD_AUTO_SAVE_MIN_MINUTES, Math.round(minutes))
+      ),
+    }),
 }))
 
 useSettingsStore.subscribe((state) => {
@@ -93,5 +106,6 @@ useSettingsStore.subscribe((state) => {
     editMode: state.editMode,
     glassUI: state.glassUI,
     aiEnabled: state.aiEnabled,
+    cloudAutoSaveIntervalMinutes: state.cloudAutoSaveIntervalMinutes,
   })
 })

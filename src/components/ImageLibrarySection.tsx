@@ -3,6 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faChevronDown, faChevronRight, faXmark } from '@fortawesome/free-solid-svg-icons'
 import { deleteImageBlob, listImageIds, loadImageBlob } from '../lib/imageStore'
 import { extractScatterImageIds } from '../lib/noteContent'
+import { formatBytes } from '../lib/formatBytes'
 import { useSettingsStore } from '../store/settings'
 import { useWorkspaceRegistry } from '../store/workspaceRegistry'
 import { blankWorkspace, flushSave, loadWorkspace } from '../store/workspace'
@@ -30,12 +31,6 @@ async function findReferencedImageIds(): Promise<Set<string>> {
     }
   }
   return ids
-}
-
-function formatBytes(bytes: number): string {
-  if (bytes < 1024) return `${bytes} B`
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
-  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
 }
 
 export function ImageLibrarySection() {

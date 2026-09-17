@@ -14,6 +14,12 @@ export async function loadImageBlob(id: string): Promise<Blob | undefined> {
   return idbGet<Blob>(PREFIX + id)
 }
 
+/** Stores a blob pulled from cloud sync under its existing id, rather than minting a new one -
+ * the id is already referenced by `scatter-image:<id>` in synced note content. */
+export async function saveImageBlobWithId(id: string, blob: Blob): Promise<void> {
+  await idbSet(PREFIX + id, blob)
+}
+
 export async function deleteImageBlob(id: string): Promise<void> {
   return idbDel(PREFIX + id)
 }
