@@ -14,6 +14,7 @@ export interface Settings {
   editMode: boolean
   glassUI: boolean
   aiEnabled: boolean
+  cloudAutoSaveEnabled: boolean
   cloudAutoSaveIntervalMinutes: number
 }
 
@@ -30,6 +31,7 @@ const DEFAULT_SETTINGS: Settings = {
   editMode: true,
   glassUI: false,
   aiEnabled: true,
+  cloudAutoSaveEnabled: true,
   cloudAutoSaveIntervalMinutes: 5,
 }
 
@@ -56,6 +58,7 @@ interface SettingsState extends Settings {
   toggleEditMode: () => void
   toggleGlassUI: () => void
   toggleAiEnabled: () => void
+  toggleCloudAutoSave: () => void
   setCloudAutoSaveIntervalMinutes: (minutes: number) => void
 }
 
@@ -88,6 +91,7 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
   toggleEditMode: () => set((s) => ({ editMode: !s.editMode })),
   toggleGlassUI: () => set((s) => ({ glassUI: !s.glassUI })),
   toggleAiEnabled: () => set((s) => ({ aiEnabled: !s.aiEnabled })),
+  toggleCloudAutoSave: () => set((s) => ({ cloudAutoSaveEnabled: !s.cloudAutoSaveEnabled })),
   setCloudAutoSaveIntervalMinutes: (minutes) =>
     set({
       cloudAutoSaveIntervalMinutes: Math.min(
@@ -106,6 +110,7 @@ useSettingsStore.subscribe((state) => {
     editMode: state.editMode,
     glassUI: state.glassUI,
     aiEnabled: state.aiEnabled,
+    cloudAutoSaveEnabled: state.cloudAutoSaveEnabled,
     cloudAutoSaveIntervalMinutes: state.cloudAutoSaveIntervalMinutes,
   })
 })

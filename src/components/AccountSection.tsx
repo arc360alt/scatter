@@ -9,6 +9,7 @@ import {
   CLOUD_AUTO_SAVE_MIN_MINUTES,
   useSettingsStore,
 } from '../store/settings'
+import { SettingsToggle } from './SettingsToggle'
 
 export function AccountSection() {
   const configured = useCloudStore((s) => s.configured)
@@ -23,6 +24,8 @@ export function AccountSection() {
   const signOut = useCloudStore((s) => s.signOut)
   const deleteAccount = useCloudStore((s) => s.deleteAccount)
   const kickDevice = useCloudStore((s) => s.kickDevice)
+  const autoSaveEnabled = useSettingsStore((s) => s.cloudAutoSaveEnabled)
+  const toggleAutoSave = useSettingsStore((s) => s.toggleCloudAutoSave)
   const autoSaveMinutes = useSettingsStore((s) => s.cloudAutoSaveIntervalMinutes)
   const setAutoSaveMinutes = useSettingsStore((s) => s.setCloudAutoSaveIntervalMinutes)
 
@@ -115,22 +118,30 @@ export function AccountSection() {
         </p>
       )}
 
-      <div className="account-sync-interval">
-        <label htmlFor="cloud-autosave-minutes">Auto-save every</label>
-        <input
-          id="cloud-autosave-minutes"
-          className="account-input account-sync-interval-input"
-          type="number"
-          min={CLOUD_AUTO_SAVE_MIN_MINUTES}
-          max={CLOUD_AUTO_SAVE_MAX_MINUTES}
-          value={autoSaveMinutes}
-          onChange={(e) => {
-            const value = Number.parseInt(e.target.value, 10)
-            if (Number.isFinite(value)) setAutoSaveMinutes(value)
-          }}
-        />
-        <span>minutes (when there are unsaved changes)</span>
-      </div>
+      <SettingsToggle
+        label="Auto-save to cloud"
+        hint="Periodically push changes to the cloud in the background. Manual save/load buttons work either way."
+        checked={autoSaveEnabled}
+        onToggle={toggleAutoSave}
+      />
+      {autoSaveEnabled && (
+        <div className="account-sync-interval">
+          <label htmlFor="cloud-autosave-minutes">Auto-save every</label>
+          <input
+            id="cloud-autosave-minutes"
+            className="account-input account-sync-interval-input"
+            type="number"
+            min={CLOUD_AUTO_SAVE_MIN_MINUTES}
+            max={CLOUD_AUTO_SAVE_MAX_MINUTES}
+            value={autoSaveMinutes}
+            onChange={(e) => {
+              const value = Number.parseInt(e.target.value, 10)
+              if (Number.isFinite(value)) setAutoSaveMinutes(value)
+            }}
+          />
+          <span>minutes (when there are unsaved changes)</span>
+        </div>
+      )}
 
       <div className="account-form-row">
         <button className="settings-upload-btn" onClick={() => void signOut()}>

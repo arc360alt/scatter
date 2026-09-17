@@ -97,14 +97,25 @@
 
 /* Firefox doesn't reliably clip backdrop-filter to border-radius, so without
    overflow: hidden the blur renders as a sharp rectangle poking past the
-   rounded corners instead of following the panel's shape. */
+   rounded corners instead of following the panel's shape.
+   No @supports gate here on purpose: @supports (backdrop-filter: ...) feature
+   queries are inconsistent across engines (it was evaluating false in Chrome
+   while true in Firefox, so Chrome fell through to a no-blur fallback). An
+   unsupported CSS property is simply ignored per spec, so a plain declaration
+   degrades gracefully on its own without needing to detect support for it. */
 :root[data-glass] .toolbar,
 :root[data-glass] .workspace-switcher-trigger,
 :root[data-glass] .workspace-switcher-menu,
 :root[data-glass] .zoom-control,
 :root[data-glass] .assistant-toggle,
 :root[data-glass] .assistant-panel,
-:root[data-glass] .modal-panel,
+:root[data-glass] .modal-panel {
+  overflow: hidden;
+  background: color-mix(in srgb, var(--paper) 55%, transparent);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
 :root[data-glass] .toolbar-btn,
 :root[data-glass] .toolbar-icon-btn,
 :root[data-glass] .zoom-btn,
@@ -112,44 +123,9 @@
 :root[data-glass] .assistant-model-btn,
 :root[data-glass] .assistant-message.assistant {
   overflow: hidden;
-  /* Mostly-opaque fallback for browsers/configs where backdrop-filter doesn't
-     apply at all, so it still looks intentional instead of a flat, unblurred
-     see-through panel. Replaced below wherever backdrop-filter is actually supported. */
-  background: color-mix(in srgb, var(--paper) 92%, transparent);
-}
-
-:root[data-glass] .toolbar-btn,
-:root[data-glass] .toolbar-icon-btn,
-:root[data-glass] .zoom-btn,
-:root[data-glass] .zoom-value,
-:root[data-glass] .assistant-model-btn,
-:root[data-glass] .assistant-message.assistant {
-  background: color-mix(in srgb, var(--paper-raised) 92%, transparent);
-}
-
-@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
-  :root[data-glass] .toolbar,
-  :root[data-glass] .workspace-switcher-trigger,
-  :root[data-glass] .workspace-switcher-menu,
-  :root[data-glass] .zoom-control,
-  :root[data-glass] .assistant-toggle,
-  :root[data-glass] .assistant-panel,
-  :root[data-glass] .modal-panel {
-    background: color-mix(in srgb, var(--paper) 55%, transparent);
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
-  }
-
-  :root[data-glass] .toolbar-btn,
-  :root[data-glass] .toolbar-icon-btn,
-  :root[data-glass] .zoom-btn,
-  :root[data-glass] .zoom-value,
-  :root[data-glass] .assistant-model-btn,
-  :root[data-glass] .assistant-message.assistant {
-    background: color-mix(in srgb, var(--paper-raised) 55%, transparent);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-  }
+  background: color-mix(in srgb, var(--paper-raised) 55%, transparent);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
 html,

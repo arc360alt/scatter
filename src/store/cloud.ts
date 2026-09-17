@@ -323,6 +323,7 @@ function stopAutoSaveTimer() {
 
 function startAutoSaveTimer() {
   stopAutoSaveTimer()
+  if (!useSettingsStore.getState().cloudAutoSaveEnabled) return
   const minutes = useSettingsStore.getState().cloudAutoSaveIntervalMinutes
   autoSaveTimer = setInterval(
     () => {
@@ -528,9 +529,14 @@ export const useCloudStore = create<CloudState>((set, get) => ({
   },
 }))
 
-// Restart the auto-save timer whenever the configured interval changes.
+// Restart (or stop) the auto-save timer whenever it's toggled or its interval changes.
 useSettingsStore.subscribe((state, prevState) => {
-  if (state.cloudAutoSaveIntervalMinutes === prevState.cloudAutoSaveIntervalMinutes) return
+  if (
+    state.cloudAutoSaveIntervalMinutes === prevState.cloudAutoSaveIntervalMinutes &&
+    state.cloudAutoSaveEnabled === prevState.cloudAutoSaveEnabled
+  ) {
+    return
+  }
   if (useCloudStore.getState().session) startAutoSaveTimer()
 })
 
