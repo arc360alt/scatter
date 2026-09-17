@@ -11,7 +11,7 @@ import { useSettingsStore } from './settings'
 import { useToastStore } from './toast'
 import type { Workspace } from '../types'
 
-export const QUOTA_CAP_BYTES = 20 * 1024 * 1024
+export const QUOTA_CAP_BYTES = 12 * 1024 * 1024
 
 interface CloudWorkspaceRow {
   id: string
