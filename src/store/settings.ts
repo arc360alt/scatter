@@ -5,10 +5,13 @@ import { ADD_ENTRIES, DEFAULT_QUICK_ADD, type AddEntryId } from '../lib/cardFact
 
 export type FontId = 'handwritten' | 'classic' | 'legible' | 'serif'
 export type ThemeId = 'light' | 'dark' | 'system'
+/** 'neokit' matches the rest of the NeoKit apps; 'classic' is the original corkboard look. */
+export type UiMode = 'neokit' | 'classic'
 export type BackgroundPresetId = 'cork' | 'slate' | 'forest' | 'midnight' | 'blush'
 export type Background = { type: 'preset'; id: BackgroundPresetId } | { type: 'image'; imageId: string }
 
 export interface Settings {
+  uiMode: UiMode
   fontId: FontId
   theme: ThemeId
   background: Background
@@ -32,6 +35,7 @@ export const CLOUD_AUTO_SAVE_MIN_MINUTES = 2
 export const CLOUD_AUTO_SAVE_MAX_MINUTES = 60
 
 const DEFAULT_SETTINGS: Settings = {
+  uiMode: 'neokit',
   fontId: 'handwritten',
   theme: 'system',
   background: { type: 'preset', id: 'cork' },
@@ -67,6 +71,7 @@ interface SettingsState extends Settings {
   hydrate: (settings: Settings) => void
   setFontId: (id: FontId) => void
   setTheme: (theme: ThemeId) => void
+  setUiMode: (mode: UiMode) => void
   setBackgroundPreset: (id: BackgroundPresetId) => void
   setBackgroundImage: (imageId: string) => void
   clearBackgroundImage: () => void
@@ -96,6 +101,7 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
   hydrate: (settings) => set({ ...settings, hydrated: true }),
   setFontId: (fontId) => set({ fontId }),
   setTheme: (theme) => set({ theme }),
+  setUiMode: (uiMode) => set({ uiMode }),
   setBackgroundPreset: (id) => {
     releasePreviousImage(get().background)
     set({ background: { type: 'preset', id } })
@@ -142,6 +148,7 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
 useSettingsStore.subscribe((state) => {
   if (!state.hydrated) return
   scheduleSave({
+    uiMode: state.uiMode,
     fontId: state.fontId,
     theme: state.theme,
     background: state.background,

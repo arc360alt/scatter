@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { Icon as FontAwesomeIcon } from '../components/Icon'
 import type { IconDefinition } from '@fortawesome/fontawesome-svg-core'
 import {
   faArrowPointer,

@@ -9,7 +9,7 @@ import {
   useSensors,
   type DragEndEvent,
 } from '@dnd-kit/core'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { Icon as FontAwesomeIcon } from '../components/Icon'
 import { faGripVertical, faPlus, faXmark } from '@fortawesome/free-solid-svg-icons'
 import type { KanbanCard as KanbanCardType, KanbanColumn as KanbanColumnType } from '../types'
 import { useWorkspaceStore } from '../store/workspace'

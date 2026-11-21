@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { Icon as FontAwesomeIcon } from './Icon'
 import { faPlus, faRotateLeft, faXmark } from '@fortawesome/free-solid-svg-icons'
 import { useUiStore } from '../store/ui'
 import { useSettingsStore } from '../store/settings'

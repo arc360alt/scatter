@@ -1,5 +1,5 @@
 import { useLayoutEffect, useRef, useState } from 'react'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { Icon as FontAwesomeIcon } from '../components/Icon'
 import { faPaintbrush, faPen } from '@fortawesome/free-solid-svg-icons'
 import type { DrawingCard as DrawingCardType } from '../types'
 import { useUiStore } from '../store/ui'

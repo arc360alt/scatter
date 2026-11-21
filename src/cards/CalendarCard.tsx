@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { Icon as FontAwesomeIcon } from '../components/Icon'
 import { faChevronLeft, faChevronRight, faXmark } from '@fortawesome/free-solid-svg-icons'
 import type { CalendarCard as CalendarCardType, Card } from '../types'
 import { useWorkspaceStore } from '../store/workspace'

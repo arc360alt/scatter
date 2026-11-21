@@ -15,6 +15,8 @@ export interface ContextMenuState {
   touch: boolean
 }
 
+export type SettingsTab = 'general' | 'board' | 'account' | 'about'
+
 interface UiState {
   contextMenu: ContextMenuState | null
   searchOpen: boolean
@@ -23,6 +25,8 @@ interface UiState {
   /** Card id whose drawing editor is open (full-screen). */
   drawingEditorId: string | null
   assistantOpen: boolean
+  /** Which settings tab is open, or null when Settings is closed. */
+  settingsTab: SettingsTab | null
   /** Last known pointer position in world coordinates, so paste/shortcuts can add cards where you're pointing. */
   lastPointerWorld: { x: number; y: number } | null
 
@@ -33,6 +37,7 @@ interface UiState {
   setAddMenuOpen: (open: boolean) => void
   openDrawingEditor: (id: string | null) => void
   setAssistantOpen: (open: boolean) => void
+  openSettings: (tab?: SettingsTab | null) => void
   setLastPointerWorld: (p: { x: number; y: number }) => void
 }
 
@@ -43,6 +48,7 @@ export const useUiStore = create<UiState>((set) => ({
   addMenuOpen: false,
   drawingEditorId: null,
   assistantOpen: false,
+  settingsTab: null,
   lastPointerWorld: null,
 
   openContextMenu: (contextMenu) => set({ contextMenu, addMenuOpen: false }),
@@ -52,5 +58,6 @@ export const useUiStore = create<UiState>((set) => ({
   setAddMenuOpen: (addMenuOpen) => set({ addMenuOpen }),
   openDrawingEditor: (drawingEditorId) => set({ drawingEditorId, contextMenu: null }),
   setAssistantOpen: (assistantOpen) => set({ assistantOpen }),
+  openSettings: (tab = 'general') => set({ settingsTab: tab, contextMenu: null, addMenuOpen: false }),
   setLastPointerWorld: (lastPointerWorld) => set({ lastPointerWorld }),
 }))

@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from 'react'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { useEffect, useRef } from 'react'
+import { Icon as FontAwesomeIcon } from './Icon'
 import {
   faArrowRotateLeft,
   faArrowRotateRight,
@@ -13,7 +13,6 @@ import {
 import { useWorkspaceStore } from '../store/workspace'
 import { useSettingsStore } from '../store/settings'
 import { useUiStore } from '../store/ui'
-import { SettingsModal } from './SettingsModal'
 import { ADD_ENTRIES, ADD_ENTRY_BY_ID } from '../lib/cardFactory'
 import { addEntryAt } from '../lib/boardActions'
 import { shortcutHint } from '../lib/shortcuts'
@@ -31,7 +30,8 @@ export function Toolbar() {
   const addMenuOpen = useUiStore((s) => s.addMenuOpen)
   const setAddMenuOpen = useUiStore((s) => s.setAddMenuOpen)
   const setSearchOpen = useUiStore((s) => s.setSearchOpen)
-  const [settingsOpen, setSettingsOpen] = useState(false)
+  const openSettings = useUiStore((s) => s.openSettings)
+  const neokit = useSettingsStore((s) => s.uiMode === 'neokit')
 
   const hint = (id: string, label: string) => {
     const k = shortcutHint(id, shortcuts)
@@ -108,11 +108,12 @@ export function Toolbar() {
           <FontAwesomeIcon icon={editMode ? faPen : faLock} />{' '}
           <span className="toolbar-btn-label">{editMode ? 'Editing' : 'Locked'}</span>
         </button>
-        <button className="toolbar-icon-btn" aria-label="Settings" onClick={() => setSettingsOpen(true)}>
-          <FontAwesomeIcon icon={faGear} />
-        </button>
+        {!neokit && (
+          <button className="toolbar-icon-btn" aria-label="Settings" onClick={() => openSettings()}>
+            <FontAwesomeIcon icon={faGear} />
+          </button>
+        )}
       </div>
-      {settingsOpen && <SettingsModal onClose={() => setSettingsOpen(false)} />}
     </>
   )
 }

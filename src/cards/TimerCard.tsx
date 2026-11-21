@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { Icon as FontAwesomeIcon } from '../components/Icon'
 import { faForwardStep, faGear, faPause, faPlay, faRotateLeft } from '@fortawesome/free-solid-svg-icons'
 import type { PomodoroPhase, TimerCard as TimerCardType, TimerMode } from '../types'
 import { useWorkspaceStore } from '../store/workspace'

@@ -1,5 +1,5 @@
 import { useLayoutEffect, useRef, useState, type ReactNode } from 'react'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { Icon as FontAwesomeIcon } from './Icon'
 import type { IconDefinition } from '@fortawesome/fontawesome-svg-core'
 import {
   faAlignCenter,

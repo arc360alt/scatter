@@ -1,5 +1,5 @@
 import { useMemo, useRef, useState, type PointerEvent as ReactPointerEvent, type ReactNode } from 'react'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { Icon as FontAwesomeIcon } from '../components/Icon'
 import { faEllipsis, faLock, faXmark } from '@fortawesome/free-solid-svg-icons'
 import type { Card, CardColor } from '../types'
 import { useWorkspaceStore } from '../store/workspace'
@@ -43,6 +43,8 @@ export function CardShell({ card, viewportScale, children }: CardShellProps) {
   const connecting = useWorkspaceStore((s) => s.connectingFrom !== null && s.connectingFrom !== card.id)
   const editMode = useSettingsStore((s) => s.editMode)
   const snapToGrid = useSettingsStore((s) => s.snapToGrid)
+  // NeoKit cards sit square; the slight random tilt is part of the Classic corkboard look.
+  const tilted = useSettingsStore((s) => s.uiMode === 'classic')
   const openContextMenu = useUiStore((s) => s.openContextMenu)
 
   const [colorMenuOpen, setColorMenuOpen] = useState(false)
@@ -282,7 +284,7 @@ export function CardShell({ card, viewportScale, children }: CardShellProps) {
         width: card.width,
         height: card.height,
         zIndex: isGroup ? GROUP_Z_OFFSET + card.zIndex : card.zIndex,
-        transform: `translate3d(${card.x}px, ${card.y}px, 0) rotate(${dragging ? 0 : card.rotation}deg)`,
+        transform: `translate3d(${card.x}px, ${card.y}px, 0) rotate(${dragging || !tilted ? 0 : card.rotation}deg)`,
       }}
       onPointerDown={handleCardPointerDown}
     >

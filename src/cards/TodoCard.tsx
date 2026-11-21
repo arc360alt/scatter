@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { Icon as FontAwesomeIcon } from '../components/Icon'
 import { faXmark } from '@fortawesome/free-solid-svg-icons'
 import type { TodoCard as TodoCardType } from '../types'
 import { useWorkspaceStore } from '../store/workspace'

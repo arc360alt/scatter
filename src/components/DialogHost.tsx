@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { Icon as FontAwesomeIcon } from './Icon'
 import { faCircleInfo, faTriangleExclamation } from '@fortawesome/free-solid-svg-icons'
 import { useDialogStore } from '../store/dialog'
 

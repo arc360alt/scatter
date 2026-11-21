@@ -4,6 +4,7 @@ import { Toolbar } from './components/Toolbar'
 import { WorkspaceSwitcher } from './components/WorkspaceSwitcher'
 import { ConflictModal } from './components/ConflictModal'
 import { CloudSyncButtons } from './components/CloudSyncButtons'
+import { NeoHeader } from './components/NeoHeader'
 import { Toast } from './components/Toast'
 import { AssistantPanel } from './assistant/AssistantPanel'
 import { useWorkspaceStore } from './store/workspace'
@@ -16,6 +17,7 @@ import { ContextMenu } from './components/ContextMenu'
 import { SearchBar } from './components/SearchBar'
 import { ShortcutsModal } from './components/ShortcutsModal'
 import { DialogHost } from './components/DialogHost'
+import { SettingsModal } from './components/SettingsModal'
 import { DrawingEditor } from './drawing/DrawingEditor'
 import { installGlobalShortcuts } from './lib/shortcuts'
 import { installPasteHandlers } from './lib/paste'
@@ -54,6 +56,7 @@ export default function App() {
   const theme = useSettingsStore((s) => s.theme)
   const background = useSettingsStore((s) => s.background)
   const glassUI = useSettingsStore((s) => s.glassUI)
+  const uiMode = useSettingsStore((s) => s.uiMode)
   const currentWorkspaceId = useWorkspaceStore((s) => s.currentWorkspaceId)
   const drawingEditorId = useUiStore((s) => s.drawingEditorId)
 
@@ -112,8 +115,14 @@ export default function App() {
 
   useEffect(() => {
     if (!settingsHydrated) return
-    document.documentElement.toggleAttribute('data-glass', glassUI)
-  }, [settingsHydrated, glassUI])
+    // Glass is a Classic-only look; NeoKit panels are always solid.
+    document.documentElement.toggleAttribute('data-glass', glassUI && uiMode === 'classic')
+  }, [settingsHydrated, glassUI, uiMode])
+
+  useEffect(() => {
+    if (!settingsHydrated) return
+    document.documentElement.setAttribute('data-ui', uiMode)
+  }, [settingsHydrated, uiMode])
 
   if (!hydrated) {
     return null
@@ -121,17 +130,24 @@ export default function App() {
 
   return (
     <div className="app">
-      <WorkspaceSwitcher />
-      <Toolbar />
+      {uiMode === 'neokit' ? (
+        <NeoHeader />
+      ) : (
+        <>
+          <WorkspaceSwitcher />
+          <Toolbar />
+        </>
+      )}
       <Canvas />
       <SearchBar />
       <AssistantPanel />
       <ContextMenu />
+      <SettingsModal />
       <ShortcutsModal />
       <DialogHost />
       {drawingEditorId && <DrawingEditor key={drawingEditorId} cardId={drawingEditorId} />}
       <ConflictModal />
-      <CloudSyncButtons />
+      {uiMode === 'classic' && <CloudSyncButtons />}
       <Toast />
     </div>
   )

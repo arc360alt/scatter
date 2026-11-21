@@ -1,5 +1,5 @@
 import { useRef } from 'react'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { Icon as FontAwesomeIcon } from '../components/Icon'
 import { faCalendarDay, faXmark } from '@fortawesome/free-solid-svg-icons'
 import { dueStatus, formatDue } from '../lib/dates'
 

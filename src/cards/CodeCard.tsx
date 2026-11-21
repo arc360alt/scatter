@@ -1,5 +1,5 @@
 import { useMemo, useRef } from 'react'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { Icon as FontAwesomeIcon } from '../components/Icon'
 import { faCopy } from '@fortawesome/free-solid-svg-icons'
 import hljs from 'highlight.js/lib/core'
 import javascript from 'highlight.js/lib/languages/javascript'

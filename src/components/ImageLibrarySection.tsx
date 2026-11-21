@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { Icon as FontAwesomeIcon } from './Icon'
 import { faChevronDown, faChevronRight, faXmark } from '@fortawesome/free-solid-svg-icons'
 import { deleteImageBlob, listImageIds, loadImageBlob } from '../lib/imageStore'
 import { workspaceImageIds } from '../lib/cardText'

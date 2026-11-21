@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { Icon as FontAwesomeIcon } from './Icon'
 import { faMagnifyingGlass, faXmark } from '@fortawesome/free-solid-svg-icons'
 import { useUiStore } from '../store/ui'
 import { useWorkspaceStore } from '../store/workspace'

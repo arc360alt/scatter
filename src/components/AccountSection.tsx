@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { Icon as FontAwesomeIcon } from './Icon'
 import { faRightFromBracket, faTrash, faXmark } from '@fortawesome/free-solid-svg-icons'
 import { QUOTA_CAP_BYTES, useCloudStore } from '../store/cloud'
 import { getDeviceId } from '../lib/deviceId'

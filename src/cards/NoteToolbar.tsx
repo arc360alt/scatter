@@ -1,5 +1,5 @@
 import { useRef } from 'react'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { Icon as FontAwesomeIcon } from '../components/Icon'
 import {
   faBold,
   faCode,

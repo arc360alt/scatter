@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { Icon as FontAwesomeIcon } from '../components/Icon'
 import { faArrowUpRightFromSquare, faImage, faLink, faRotate } from '@fortawesome/free-solid-svg-icons'
 import type { GroupCard as GroupCardType, ImageCard as ImageCardType, LinkCard as LinkCardType, StickyCard as StickyCardType } from '../types'
 import { useWorkspaceStore } from '../store/workspace'
