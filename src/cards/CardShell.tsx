@@ -12,15 +12,8 @@ import { CARD_COLORS } from '../lib/cardFactory'
 import { rafBatch } from '../lib/frame'
 import { confirmDialog } from '../store/dialog'
 import { LONG_PRESS_MS } from '../lib/gesture'
+import { minCardSize } from '../lib/cardFactory'
 
-const MIN_SIZE: Partial<Record<Card['type'], [number, number]>> = {
-  sticky: [130, 110],
-  timer: [200, 190],
-  link: [200, 110],
-  image: [140, 110],
-  group: [200, 140],
-}
-const DEFAULT_MIN: [number, number] = [200, 140]
 // Groups always render beneath every regular card (and beneath the arrow layer).
 const GROUP_Z_OFFSET = -1_000_000
 
@@ -188,7 +181,7 @@ export function CardShell({ card, viewportScale, children }: CardShellProps) {
     const r = resizeState.current
     if (!r || r.pointerId !== e.pointerId) return
     if (gestureCancelled()) return endResize()
-    const [minW, minH] = MIN_SIZE[card.type] ?? DEFAULT_MIN
+    const [minW, minH] = minCardSize(card.type)
     let width = Math.max(minW, r.ow + (e.clientX - r.startX) / viewportScale)
     let height = Math.max(minH, r.oh + (e.clientY - r.startY) / viewportScale)
     if (snapToGrid) {

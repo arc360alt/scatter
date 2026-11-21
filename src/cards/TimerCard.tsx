@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type CSSProperties } from 'react'
 import { Icon as FontAwesomeIcon } from '../components/Icon'
 import { faForwardStep, faGear, faPause, faPlay, faRotateLeft } from '@fortawesome/free-solid-svg-icons'
 import type { PomodoroPhase, TimerCard as TimerCardType, TimerMode } from '../types'
@@ -155,52 +155,57 @@ export function TimerCard({ card }: { card: TimerCardType }) {
         ))}
       </div>
 
-      <div className="timer-dial">
-        <svg viewBox="0 0 120 120" aria-hidden>
-          <circle className="timer-track" cx="60" cy="60" r={R} />
-          <circle
-            className="timer-progress"
-            cx="60"
-            cy="60"
-            r={R}
-            strokeDasharray={C}
-            strokeDashoffset={C * (1 - progress)}
-            transform="rotate(-90 60 60)"
-          />
-        </svg>
-        <div className="timer-readout">
-          {editingDuration ? (
-            <input
-              className="timer-duration-input"
-              autoFocus
-              value={durationDraft}
-              placeholder="mm:ss"
-              onChange={(e) => setDurationDraft(e.target.value)}
-              onBlur={commitDuration}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') commitDuration()
-                if (e.key === 'Escape') setEditingDuration(false)
-              }}
+      <div className="timer-stage">
+        <div className="timer-dial">
+          <svg viewBox="0 0 120 120" aria-hidden>
+            <circle className="timer-track" cx="60" cy="60" r={R} />
+            <circle
+              className="timer-progress"
+              cx="60"
+              cy="60"
+              r={R}
+              strokeDasharray={C}
+              strokeDashoffset={C * (1 - progress)}
+              transform="rotate(-90 60 60)"
             />
-          ) : (
-            <button
-              className="timer-time"
-              disabled={card.mode !== 'countdown' || running}
-              title={card.mode === 'countdown' && !running ? 'Click to set the time' : undefined}
-              onClick={() => {
-                setDurationDraft(formatDuration(card.durationMs))
-                setEditingDuration(true)
-              }}
-            >
-              {display}
-            </button>
-          )}
-          {card.mode === 'pomodoro' && (
-            <span className="timer-phase">
-              {PHASE_LABEL[card.phase]} · {card.completedFocus} done
-            </span>
-          )}
-          {card.mode === 'countdown' && !running && remaining <= 0 && <span className="timer-phase">Done!</span>}
+          </svg>
+          <div className="timer-readout">
+            {editingDuration ? (
+              <input
+                className="timer-duration-input"
+                autoFocus
+                value={durationDraft}
+                placeholder="mm:ss"
+                onChange={(e) => setDurationDraft(e.target.value)}
+                onBlur={commitDuration}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') commitDuration()
+                  if (e.key === 'Escape') setEditingDuration(false)
+                }}
+              />
+            ) : (
+              <button
+                className="timer-time"
+                style={{ '--chars': display.length } as CSSProperties}
+                disabled={card.mode !== 'countdown' || running}
+                title={card.mode === 'countdown' && !running ? 'Click to set the time' : undefined}
+                onClick={() => {
+                  setDurationDraft(formatDuration(card.durationMs))
+                  setEditingDuration(true)
+                }}
+              >
+                {display}
+              </button>
+            )}
+            {card.mode === 'pomodoro' && (
+              <span className="timer-phase">
+                {PHASE_LABEL[card.phase]}
+                <br />
+                {card.completedFocus} done
+              </span>
+            )}
+            {card.mode === 'countdown' && !running && remaining <= 0 && <span className="timer-phase">Done!</span>}
+          </div>
         </div>
       </div>
 

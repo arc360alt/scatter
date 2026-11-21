@@ -75,12 +75,37 @@ const SIZES: Record<AddEntryId, [number, number]> = {
   kanban: [440, 320],
   drawing: [340, 270],
   image: [300, 260],
-  link: [300, 150],
+  link: [300, 180],
   code: [380, 260],
-  pomodoro: [240, 240],
-  timer: [240, 220],
+  pomodoro: [260, 320],
+  timer: [260, 310],
   calendar: [340, 480],
   group: [560, 400],
+}
+
+/** Smallest size each card type can be resized to. Measured in a headless browser in
+ * both interface modes: below these, controls get pushed out of the card or text
+ * overlaps (the timer's readout and the calendar's day list need the most room). */
+const MIN_SIZES: Partial<Record<CardType, [number, number]>> = {
+  sticky: [130, 110],
+  todo: [220, 140],
+  kanban: [300, 200],
+  image: [160, 150],
+  link: [200, 170],
+  timer: [220, 290],
+  calendar: [240, 320],
+}
+const DEFAULT_MIN_SIZE: [number, number] = [200, 140]
+
+export function minCardSize(type: CardType): [number, number] {
+  return MIN_SIZES[type] ?? DEFAULT_MIN_SIZE
+}
+
+/** Returns the card grown to its type's minimum size if it's smaller (or the card itself if not). */
+export function clampCardSize<T extends Card>(card: T): T {
+  const [minW, minH] = minCardSize(card.type)
+  if (card.width >= minW && card.height >= minH) return card
+  return { ...card, width: Math.max(minW, card.width), height: Math.max(minH, card.height) }
 }
 
 const TITLES: Record<AddEntryId, string> = {
@@ -189,7 +214,7 @@ export function buildCard(
       card = { ...base, type: 'group' }
       break
   }
-  return { ...card, ...patch } as Card
+  return clampCardSize({ ...card, ...patch } as Card)
 }
 
 export function cardTypeLabel(card: Card): string {

@@ -3,7 +3,7 @@ import { get as idbGet, set as idbSet } from 'idb-keyval'
 import type { Card, CardColor, Connector, KanbanCard, NoteCard, TodoCard, Viewport, Workspace } from '../types'
 import { makeId } from '../lib/id'
 import { reconcileCheckboxStates } from '../lib/noteContent'
-import { buildCard, type AddEntryId } from '../lib/cardFactory'
+import { buildCard, clampCardSize, type AddEntryId } from '../lib/cardFactory'
 import { boundsOf } from '../lib/geometry'
 
 // Pre-multi-workspace versions stored a single workspace under this exact key;
@@ -316,7 +316,8 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
   hydrate: (workspace, id) => {
     resetHistory()
     quietly(() => set({
-      cards: workspace.cards,
+      // Cards saved before the current size limits existed are grown to fit their content.
+      cards: workspace.cards.map(clampCardSize),
       connectors: workspace.connectors ?? [],
       viewport: workspace.viewport,
       hydrated: true,
@@ -418,7 +419,11 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
 
   updateCard: (id, patch) =>
     set((s) => ({
-      cards: s.cards.map((c) => (c.id === id ? ({ ...c, ...patch, updatedAt: Date.now() } as Card) : c)),
+      cards: s.cards.map((c) => {
+        if (c.id !== id) return c
+        const next = { ...c, ...patch, updatedAt: Date.now() } as Card
+        return 'width' in patch || 'height' in patch ? clampCardSize(next) : next
+      }),
     })),
 
   moveCards: (positions) =>

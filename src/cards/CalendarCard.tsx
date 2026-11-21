@@ -137,35 +137,37 @@ export function CalendarCard({ card }: { card: CalendarCardType }) {
         <div className="calendar-day-title">
           {parseDateStr(selected).toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' })}
         </div>
-        {dayDue.map((d) => (
-          <div key={d.itemId} className={`calendar-entry due${d.done ? ' done' : ''}`}>
-            {d.kind === 'todo' ? (
-              <input type="checkbox" checked={d.done} onChange={() => toggleTodoItem(d.cardId, d.itemId)} />
-            ) : (
-              <span className="calendar-entry-bullet" />
-            )}
-            <span className="calendar-entry-text">{d.text}</span>
-            <button className="calendar-entry-src" onClick={() => jumpToCard(d.cardId)} title="Show the card">
-              {d.cardTitle || 'card'}
-            </button>
-          </div>
-        ))}
-        {dayEvents.map((ev) => (
-          <div key={ev.id} className="calendar-entry event">
-            <span className="calendar-entry-bullet event" />
-            <span className="calendar-entry-text">{ev.text}</span>
-            {editMode && (
-              <button
-                className="calendar-entry-remove"
-                aria-label="Remove event"
-                onClick={() => updateCard<CalendarCardType>(card.id, { events: card.events.filter((e) => e.id !== ev.id) })}
-              >
-                <FontAwesomeIcon icon={faXmark} />
+        <div className="calendar-entries">
+          {dayDue.map((d) => (
+            <div key={d.itemId} className={`calendar-entry due${d.done ? ' done' : ''}`}>
+              {d.kind === 'todo' ? (
+                <input type="checkbox" checked={d.done} onChange={() => toggleTodoItem(d.cardId, d.itemId)} />
+              ) : (
+                <span className="calendar-entry-bullet" />
+              )}
+              <span className="calendar-entry-text">{d.text}</span>
+              <button className="calendar-entry-src" onClick={() => jumpToCard(d.cardId)} title="Show the card">
+                {d.cardTitle || 'card'}
               </button>
-            )}
-          </div>
-        ))}
-        {dayDue.length === 0 && dayEvents.length === 0 && <div className="calendar-empty">Nothing on this day.</div>}
+            </div>
+          ))}
+          {dayEvents.map((ev) => (
+            <div key={ev.id} className="calendar-entry event">
+              <span className="calendar-entry-bullet event" />
+              <span className="calendar-entry-text">{ev.text}</span>
+              {editMode && (
+                <button
+                  className="calendar-entry-remove"
+                  aria-label="Remove event"
+                  onClick={() => updateCard<CalendarCardType>(card.id, { events: card.events.filter((e) => e.id !== ev.id) })}
+                >
+                  <FontAwesomeIcon icon={faXmark} />
+                </button>
+              )}
+            </div>
+          ))}
+          {dayDue.length === 0 && dayEvents.length === 0 && <div className="calendar-empty">Nothing on this day.</div>}
+        </div>
         {editMode && (
           <input
             className="todo-add-input"
