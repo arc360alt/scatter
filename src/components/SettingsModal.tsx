@@ -234,6 +234,13 @@ export function SettingsModal({ onClose }: { onClose: () => void }) {
                 <FontAwesomeIcon icon={faKeyboard} /> Keyboard shortcuts
               </button>
             </div>
+            <div className="about-credit">
+              <img className="about-logo" src="/logo.svg" alt="Neo Technologies logo" />
+              <p>
+                Scatter is a product by <strong>Neo Technologies</strong> and is under the <strong>NeoKit</strong> line
+                of products, provided for free under the MIT license for all.
+              </p>
+            </div>
             <p className="about-made">Made with React, WebLLM and Supabase.</p>
           </section>
         </div>

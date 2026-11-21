@@ -4377,3 +4377,32 @@ kbd {
     padding: 11px 16px;
   }
 }
+
+.about-credit {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 12px;
+  padding: 10px 12px;
+  border: 1.5px solid var(--paper-edge);
+  border-radius: 12px;
+  background: var(--paper-raised);
+}
+
+.about-logo {
+  /* The logo is drawn in white, so it sits on a fixed dark tile in both themes. */
+  width: 46px;
+  height: 46px;
+  flex-shrink: 0;
+  object-fit: contain;
+  padding: 8px;
+  border-radius: 11px;
+  background: #2b2118;
+  border: 2px solid var(--ink);
+}
+
+.about-credit p {
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.45;
+}
