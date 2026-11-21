@@ -56,7 +56,7 @@ export const ADD_ENTRIES: AddEntry[] = [
 
 export const ADD_ENTRY_BY_ID = Object.fromEntries(ADD_ENTRIES.map((e) => [e.id, e])) as Record<AddEntryId, AddEntry>
 
-export const DEFAULT_QUICK_ADD: AddEntryId[] = ['note', 'todo', 'drawing']
+export const DEFAULT_QUICK_ADD: AddEntryId[] = ['note', 'todo', 'kanban']
 
 export const CARD_COLORS: CardColor[] = ['terracotta', 'olive', 'mustard', 'teal', 'plum', 'slate']
 
