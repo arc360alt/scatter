@@ -3,7 +3,7 @@ import { set as idbSet } from 'idb-keyval'
 import type { Session } from '@supabase/supabase-js'
 import { cloudSyncConfigured, supabase } from '../lib/supabaseClient'
 import { getDeviceId, getDeviceLabel } from '../lib/deviceId'
-import { extractScatterImageIds } from '../lib/noteContent'
+import { workspaceImageIds } from '../lib/cardText'
 import { loadImageBlob, saveImageBlobWithId } from '../lib/imageStore'
 import { blankWorkspace, loadWorkspace, storageKey, useWorkspaceStore } from './workspace'
 import { useWorkspaceRegistry } from './workspaceRegistry'
@@ -88,10 +88,7 @@ function cardCount(workspace: Workspace): number {
 
 async function pushImagesForWorkspace(workspace: Workspace, userId: string) {
   if (!supabase) return
-  const ids = new Set<string>()
-  for (const card of workspace.cards) {
-    if (card.type === 'note') extractScatterImageIds(card.content).forEach((id) => ids.add(id))
-  }
+  const ids = workspaceImageIds(workspace.cards)
   for (const id of ids) {
     if (uploadedImageIds.has(id)) continue
     const blob = await loadImageBlob(id)
@@ -105,10 +102,7 @@ async function pushImagesForWorkspace(workspace: Workspace, userId: string) {
 
 async function pullImagesForWorkspace(workspace: Workspace, userId: string) {
   if (!supabase) return
-  const ids = new Set<string>()
-  for (const card of workspace.cards) {
-    if (card.type === 'note') extractScatterImageIds(card.content).forEach((id) => ids.add(id))
-  }
+  const ids = workspaceImageIds(workspace.cards)
   for (const id of ids) {
     const existing = await loadImageBlob(id)
     if (existing) {
@@ -131,7 +125,7 @@ async function pushWorkspaceNow(clientWorkspaceId: string) {
   const wsState = useWorkspaceStore.getState()
   const isActive = wsState.currentWorkspaceId === clientWorkspaceId
   const data: Workspace = isActive
-    ? { cards: wsState.cards, viewport: wsState.viewport }
+    ? wsState.snapshot()
     : await loadWorkspace(clientWorkspaceId, blankWorkspace)
 
   const { error } = await supabase.from('workspaces').upsert(
@@ -246,7 +240,7 @@ async function checkCloudForActiveWorkspace() {
   }
 
   const wsState = useWorkspaceStore.getState()
-  const localData: Workspace = { cards: wsState.cards, viewport: wsState.viewport }
+  const localData: Workspace = wsState.snapshot()
   const same = JSON.stringify(localData) === JSON.stringify(cloudRow.data)
   if (same) return
 
@@ -555,8 +549,9 @@ if (typeof window !== 'undefined') {
 // different workspace, which loads fresh data that isn't "unsaved").
 useWorkspaceStore.subscribe((state, prevState) => {
   if (state.currentWorkspaceId !== prevState.currentWorkspaceId) return
-  if (state.cards === prevState.cards && state.viewport === prevState.viewport) return
-  useCloudStore.setState({ hasUnsavedChanges: true })
+  if (state.cards === prevState.cards && state.viewport === prevState.viewport && state.connectors === prevState.connectors)
+    return
+  if (!useCloudStore.getState().hasUnsavedChanges) useCloudStore.setState({ hasUnsavedChanges: true })
 })
 
 // Mirror workspace create/rename/delete to the cloud when signed in, and flush

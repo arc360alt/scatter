@@ -15,6 +15,7 @@ import type { KanbanCard as KanbanCardType, KanbanColumn as KanbanColumnType } f
 import { useWorkspaceStore } from '../store/workspace'
 import { useSettingsStore } from '../store/settings'
 import { setNoSelect } from '../lib/noSelect'
+import { DueDate } from './DueDate'
 
 // Matches .kanban-item-text's font-size/line-height in index.css.
 const COLLAPSED_MAX_HEIGHT = 13 * 1.35 * 3
@@ -26,6 +27,7 @@ export function KanbanCard({ card }: { card: KanbanCardType }) {
   const updateKanbanItemText = useWorkspaceStore((s) => s.updateKanbanItemText)
   const addKanbanColumn = useWorkspaceStore((s) => s.addKanbanColumn)
   const renameKanbanColumn = useWorkspaceStore((s) => s.renameKanbanColumn)
+  const setKanbanItemDue = useWorkspaceStore((s) => s.setKanbanItemDue)
   const editMode = useSettingsStore((s) => s.editMode)
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }))
@@ -59,6 +61,7 @@ export function KanbanCard({ card }: { card: KanbanCardType }) {
             onAddItem={(text) => addKanbanItem(card.id, col.id, text)}
             onRemoveItem={(itemId) => removeKanbanItem(card.id, itemId)}
             onUpdateItem={(itemId, text) => updateKanbanItemText(card.id, itemId, text)}
+            onSetDue={(itemId, due) => setKanbanItemDue(card.id, itemId, due)}
           />
         ))}
         {editMode && (
@@ -73,15 +76,25 @@ export function KanbanCard({ card }: { card: KanbanCardType }) {
 
 interface KanbanColumnProps {
   column: KanbanColumnType
-  items: { id: string; text: string }[]
+  items: { id: string; text: string; due?: string }[]
   editMode: boolean
   onRename: (title: string) => void
   onAddItem: (text: string) => void
   onRemoveItem: (itemId: string) => void
   onUpdateItem: (itemId: string, text: string) => void
+  onSetDue: (itemId: string, due: string | undefined) => void
 }
 
-function KanbanColumn({ column, items, editMode, onRename, onAddItem, onRemoveItem, onUpdateItem }: KanbanColumnProps) {
+function KanbanColumn({
+  column,
+  items,
+  editMode,
+  onRename,
+  onAddItem,
+  onRemoveItem,
+  onUpdateItem,
+  onSetDue,
+}: KanbanColumnProps) {
   const { setNodeRef, isOver } = useDroppable({ id: column.id })
   const [adding, setAdding] = useState(false)
   const [draft, setDraft] = useState('')
@@ -111,9 +124,11 @@ function KanbanColumn({ column, items, editMode, onRename, onAddItem, onRemoveIt
             key={item.id}
             id={item.id}
             text={item.text}
+            due={item.due}
             editMode={editMode}
             onRemove={() => onRemoveItem(item.id)}
             onChange={(t) => onUpdateItem(item.id, t)}
+            onSetDue={(due) => onSetDue(item.id, due)}
           />
         ))}
       </div>
@@ -139,15 +154,19 @@ function KanbanColumn({ column, items, editMode, onRename, onAddItem, onRemoveIt
 function KanbanItemCard({
   id,
   text,
+  due,
   editMode,
   onRemove,
   onChange,
+  onSetDue,
 }: {
   id: string
   text: string
+  due?: string
   editMode: boolean
   onRemove: () => void
   onChange: (text: string) => void
+  onSetDue: (due: string | undefined) => void
 }) {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({ id })
   const textareaRef = useRef<HTMLTextAreaElement>(null)
@@ -205,6 +224,7 @@ function KanbanItemCard({
             {expanded ? 'Show less' : 'More'}
           </button>
         )}
+        <DueDate due={due} editable={editMode} onChange={onSetDue} />
       </div>
       {editMode && (
         <button className="kanban-item-remove" onClick={onRemove}>

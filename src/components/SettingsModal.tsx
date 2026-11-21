@@ -1,6 +1,6 @@
 import { useRef } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faUpload, faXmark } from '@fortawesome/free-solid-svg-icons'
+import { faKeyboard, faThumbtack, faUpload, faXmark } from '@fortawesome/free-solid-svg-icons'
 import { useSettingsStore, type BackgroundPresetId, type FontId, type ThemeId } from '../store/settings'
 import { resizeImageToBlob } from '../lib/imageResize'
 import { saveImageBlob } from '../lib/imageStore'
@@ -8,6 +8,8 @@ import { useBlobImageUrl } from '../lib/useBlobImageUrl'
 import { ImageLibrarySection } from './ImageLibrarySection'
 import { AccountSection } from './AccountSection'
 import { SettingsToggle } from './SettingsToggle'
+import { useUiStore } from '../store/ui'
+import { ADD_ENTRIES } from '../lib/cardFactory'
 
 const FONT_OPTIONS: { id: FontId; label: string; blurb: string }[] = [
   { id: 'handwritten', label: 'Handwritten', blurb: 'Playful cursive titles (default)' },
@@ -43,6 +45,13 @@ export function SettingsModal({ onClose }: { onClose: () => void }) {
   const clearBackgroundImage = useSettingsStore((s) => s.clearBackgroundImage)
   const toggleGlassUI = useSettingsStore((s) => s.toggleGlassUI)
   const toggleAiEnabled = useSettingsStore((s) => s.toggleAiEnabled)
+  const snapToGrid = useSettingsStore((s) => s.snapToGrid)
+  const toggleSnapToGrid = useSettingsStore((s) => s.toggleSnapToGrid)
+  const showMinimap = useSettingsStore((s) => s.showMinimap)
+  const toggleMinimap = useSettingsStore((s) => s.toggleMinimap)
+  const quickAdd = useSettingsStore((s) => s.quickAdd)
+  const toggleQuickAdd = useSettingsStore((s) => s.toggleQuickAdd)
+  const setShortcutsOpen = useUiStore((s) => s.setShortcutsOpen)
 
   const fileInputRef = useRef<HTMLInputElement>(null)
   const previewUrl = useBlobImageUrl(background.type === 'image' ? background.imageId : undefined)
@@ -126,6 +135,53 @@ export function SettingsModal({ onClose }: { onClose: () => void }) {
             </div>
           </section>
 
+          <section className="settings-section">
+            <h3>Toolbar</h3>
+            <p className="settings-hint">
+              Pin the card types you use most as toolbar buttons. Everything else is in the + menu and the right-click
+              (long-press on touch) menu.
+            </p>
+            <div className="settings-options">
+              {ADD_ENTRIES.map((e) => (
+                <button
+                  key={e.id}
+                  className={`settings-option-btn pin-option${quickAdd.includes(e.id) ? ' active' : ''}`}
+                  aria-pressed={quickAdd.includes(e.id)}
+                  onClick={() => toggleQuickAdd(e.id)}
+                >
+                  {quickAdd.includes(e.id) && <FontAwesomeIcon icon={faThumbtack} />} {e.label}
+                </button>
+              ))}
+            </div>
+          </section>
+
+          <section className="settings-section">
+            <h3>Board</h3>
+            <SettingsToggle
+              label="Snap to grid"
+              hint="Cards line up on a 20px grid as you move and resize them"
+              checked={snapToGrid}
+              onToggle={toggleSnapToGrid}
+            />
+            <SettingsToggle
+              label="Minimap"
+              hint="A small overview of the whole board in the corner"
+              checked={showMinimap}
+              onToggle={toggleMinimap}
+            />
+            <div className="settings-image-row">
+              <button
+                className="settings-upload-btn"
+                onClick={() => {
+                  onClose()
+                  setShortcutsOpen(true)
+                }}
+              >
+                <FontAwesomeIcon icon={faKeyboard} /> Customise keyboard shortcuts…
+              </button>
+            </div>
+          </section>
+
           <ImageLibrarySection />
 
           <section className="settings-section">
@@ -145,6 +201,41 @@ export function SettingsModal({ onClose }: { onClose: () => void }) {
           </section>
 
           <AccountSection />
+
+          <section className="settings-section about-section">
+            <h3>About</h3>
+            <div className="about-brand">Scatter</div>
+            <p className="about-text">
+              A freeform corkboard for notes, todo lists, boards, drawings, timers and more, all on one canvas you can
+              pan and zoom around.
+            </p>
+            <ul className="about-list">
+              <li>
+                <strong>Local-first.</strong> Everything is saved in this browser. No account needed; cloud sync is
+                optional.
+              </li>
+              <li>
+                <strong>Private AI.</strong> The assistant runs entirely on your device. Nothing you write is sent to
+                an AI service.
+              </li>
+              <li>
+                <strong>Tips:</strong> right-click the board (long-press on touch) for every card type and action, and
+                press <kbd>?</kbd> for keyboard shortcuts.
+              </li>
+            </ul>
+            <div className="settings-image-row">
+              <button
+                className="settings-upload-btn"
+                onClick={() => {
+                  onClose()
+                  setShortcutsOpen(true)
+                }}
+              >
+                <FontAwesomeIcon icon={faKeyboard} /> Keyboard shortcuts
+              </button>
+            </div>
+            <p className="about-made">Made with React, WebLLM and Supabase.</p>
+          </section>
         </div>
       </div>
     </div>

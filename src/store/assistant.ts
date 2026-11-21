@@ -3,10 +3,16 @@ import type { WebWorkerMLCEngine } from '@mlc-ai/web-llm'
 import { DEFAULT_MODEL_ID } from '../assistant/models'
 import { buildSystemPrompt } from '../assistant/context'
 import type { Card } from '../types'
+import { extractActions, type AssistantAction } from '../assistant/actions'
+import { useUiStore } from './ui'
+import { useWorkspaceStore } from './workspace'
 
 export interface ChatMessage {
   role: 'user' | 'assistant'
   content: string
+  /** Board changes the assistant proposed in this reply, awaiting review. */
+  actions?: AssistantAction[]
+  actionsState?: 'pending' | 'applied' | 'dismissed'
 }
 
 type EngineStatus = 'idle' | 'loading' | 'ready' | 'error' | 'unsupported'
@@ -22,7 +28,12 @@ interface AssistantState {
   engine: WebWorkerMLCEngine | null
 
   loadModel: (modelId: string) => Promise<void>
-  sendMessage: (text: string, cards: Card[]) => Promise<void>
+  /** A prompt waiting for the model to finish loading (sent from a card's "Ask AI" menu). */
+  pendingPrompt: string | null
+  sendMessage: (text: string, cards: Card[], selectedIds?: string[]) => Promise<void>
+  /** Opens the panel and asks something, queueing it until the model is ready. */
+  ask: (text: string) => void
+  setActionsState: (index: number, state: 'applied' | 'dismissed') => void
   reset: () => void
   unload: () => void
 }
@@ -38,6 +49,7 @@ export const useAssistantStore = create<AssistantState>((set, get) => ({
   messages: [],
   sending: false,
   engine: null,
+  pendingPrompt: null,
 
   loadModel: async (modelId) => {
     if (!('gpu' in navigator)) {
@@ -61,7 +73,7 @@ export const useAssistantStore = create<AssistantState>((set, get) => ({
     }
   },
 
-  sendMessage: async (text, cards) => {
+  sendMessage: async (text, cards, selectedIds = []) => {
     const { engine, messages } = get()
     if (!engine || !text.trim()) return
     const userMessage: ChatMessage = { role: 'user', content: text }
@@ -71,7 +83,7 @@ export const useAssistantStore = create<AssistantState>((set, get) => ({
     try {
       const stream = await engine.chat.completions.create({
         messages: [
-          { role: 'system' as const, content: buildSystemPrompt(cards) },
+          { role: 'system' as const, content: buildSystemPrompt(cards, selectedIds) },
           ...[...messages, userMessage].map((m) => ({ role: m.role, content: m.content })),
         ],
         stream: true,
@@ -96,9 +108,31 @@ export const useAssistantStore = create<AssistantState>((set, get) => ({
         return { messages: msgs }
       })
     } finally {
-      set({ sending: false })
+      set((s) => {
+        const msgs = [...s.messages]
+        const last = msgs[msgs.length - 1]
+        if (last?.role === 'assistant') {
+          const { actions } = extractActions(last.content)
+          if (actions.length) msgs[msgs.length - 1] = { ...last, actions, actionsState: 'pending' }
+        }
+        return { messages: msgs, sending: false }
+      })
     }
   },
+
+  ask: (text) => {
+    useUiStore.getState().setAssistantOpen(true)
+    const { status, sending } = get()
+    if (status === 'ready' && !sending) {
+      const ws = useWorkspaceStore.getState()
+      void get().sendMessage(text, ws.cards, ws.selectedIds)
+    } else {
+      set({ pendingPrompt: text })
+    }
+  },
+
+  setActionsState: (index, state) =>
+    set((s) => ({ messages: s.messages.map((m, i) => (i === index ? { ...m, actionsState: state } : m)) })),
 
   reset: () => set({ messages: [] }),
 
@@ -106,6 +140,6 @@ export const useAssistantStore = create<AssistantState>((set, get) => ({
   unload: () => {
     const engine = get().engine
     void engine?.unload().catch(() => {})
-    set({ engine: null, status: 'idle', progress: 0, progressText: '', messages: [] })
+    set({ engine: null, status: 'idle', progress: 0, progressText: '', messages: [], pendingPrompt: null })
   },
 }))

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faChevronDown, faChevronRight, faXmark } from '@fortawesome/free-solid-svg-icons'
 import { deleteImageBlob, listImageIds, loadImageBlob } from '../lib/imageStore'
-import { extractScatterImageIds } from '../lib/noteContent'
+import { workspaceImageIds } from '../lib/cardText'
 import { formatBytes } from '../lib/formatBytes'
 import { useSettingsStore } from '../store/settings'
 import { useWorkspaceRegistry } from '../store/workspaceRegistry'
@@ -24,11 +24,7 @@ async function findReferencedImageIds(): Promise<Set<string>> {
   const workspaces = useWorkspaceRegistry.getState().workspaces
   for (const w of workspaces) {
     const data = await loadWorkspace(w.id, blankWorkspace)
-    for (const card of data.cards) {
-      if (card.type === 'note') {
-        extractScatterImageIds(card.content).forEach((id) => ids.add(id))
-      }
-    }
+    workspaceImageIds(data.cards).forEach((id) => ids.add(id))
   }
   return ids
 }

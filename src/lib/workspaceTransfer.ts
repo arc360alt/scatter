@@ -1,5 +1,5 @@
 import type { Card, Workspace } from '../types'
-import { extractScatterImageIds } from './noteContent'
+import { remapCardImageIds, workspaceImageIds } from './cardText'
 import { loadImageBlob, saveImageBlob } from './imageStore'
 import { loadWorkspace, blankWorkspace } from '../store/workspace'
 
@@ -36,13 +36,7 @@ function slugify(name: string): string {
 }
 
 function noteImageIdsInWorkspace(workspace: Workspace): string[] {
-  const ids = new Set<string>()
-  for (const card of workspace.cards) {
-    if (card.type === 'note') {
-      for (const id of extractScatterImageIds(card.content)) ids.add(id)
-    }
-  }
-  return [...ids]
+  return workspaceImageIds(workspace.cards)
 }
 
 /** Downloads a workspace (and every image its notes reference) as a single portable JSON file. */
@@ -93,14 +87,7 @@ export async function importWorkspaceFile(file: File): Promise<{ name: string; w
     idMap.set(oldId, newId)
   }
 
-  const cards: Card[] = raw.workspace.cards.map((card) => {
-    if (card.type !== 'note') return card
-    const content = card.content.replace(/scatter-image:([a-zA-Z0-9-]+)/g, (match, oldId: string) => {
-      const newId = idMap.get(oldId)
-      return newId ? `scatter-image:${newId}` : match
-    })
-    return { ...card, content }
-  })
+  const cards: Card[] = raw.workspace.cards.map((card) => remapCardImageIds(card, idMap))
 
   return { name: raw.name, workspace: { ...raw.workspace, cards } }
 }
