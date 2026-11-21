@@ -122,6 +122,9 @@ export default function App() {
   useEffect(() => {
     if (!settingsHydrated) return
     document.documentElement.setAttribute('data-ui', uiMode)
+    // Each interface mode has its own favicon: orange for Classic, black for NeoKit.
+    const icon = document.querySelector<HTMLLinkElement>('link[rel="icon"]')
+    if (icon) icon.href = uiMode === 'neokit' ? '/favicon-neokit.svg' : '/favicon.svg'
   }, [settingsHydrated, uiMode])
 
   if (!hydrated) {
