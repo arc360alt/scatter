@@ -4,6 +4,7 @@ import { faChevronDown, faChevronRight, faXmark } from '@fortawesome/free-solid-
 import { deleteImageBlob, listImageIds, loadImageBlob } from '../lib/imageStore'
 import { workspaceImageIds } from '../lib/cardText'
 import { formatBytes } from '../lib/formatBytes'
+import { confirmDialog } from '../store/dialog'
 import { useSettingsStore } from '../store/settings'
 import { useWorkspaceRegistry } from '../store/workspaceRegistry'
 import { blankWorkspace, flushSave, loadWorkspace } from '../store/workspace'
@@ -71,9 +72,12 @@ export function ImageLibrarySection() {
   async function handleDeleteAllUnused() {
     const unused = images?.filter((img) => !img.inUse) ?? []
     if (unused.length === 0) return
-    if (!window.confirm(`Delete ${unused.length} unused image${unused.length === 1 ? '' : 's'}? This can't be undone.`)) {
-      return
-    }
+    const ok = await confirmDialog({
+      title: `Delete ${unused.length} unused image${unused.length === 1 ? '' : 's'}?`,
+      message: "They aren't used by any card or background. This can't be undone.",
+      danger: true,
+    })
+    if (!ok) return
     await Promise.all(unused.map((img) => deleteImageBlob(img.id)))
     setImages((prev) => prev?.filter((img) => img.inUse) ?? null)
   }

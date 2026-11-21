@@ -10,6 +10,7 @@ import {
   useSettingsStore,
 } from '../store/settings'
 import { SettingsToggle } from './SettingsToggle'
+import { confirmDialog } from '../store/dialog'
 
 export function AccountSection() {
   const configured = useCloudStore((s) => s.configured)
@@ -150,13 +151,15 @@ export function AccountSection() {
         <button
           className="settings-upload-btn"
           onClick={() => {
-            if (
-              window.confirm(
-                "Delete your account? This removes your cloud data permanently but leaves this device's local data untouched."
-              )
-            ) {
-              void deleteAccount()
-            }
+            void confirmDialog({
+              title: 'Delete your account?',
+              message:
+                "This permanently removes your cloud data. This device's local data stays untouched. It can't be undone.",
+              confirmLabel: 'Delete account',
+              danger: true,
+            }).then((ok) => {
+              if (ok) void deleteAccount()
+            })
           }}
         >
           <FontAwesomeIcon icon={faTrash} /> Delete account

@@ -10,6 +10,7 @@ import { gestureCancelled } from '../lib/gesture'
 import { cardsInGroup, snap } from '../lib/geometry'
 import { CARD_COLORS } from '../lib/cardFactory'
 import { rafBatch } from '../lib/frame'
+import { confirmDialog } from '../store/dialog'
 import { LONG_PRESS_MS } from '../lib/gesture'
 
 const MIN_SIZE: Partial<Record<Card['type'], [number, number]>> = {
@@ -206,16 +207,24 @@ export function CardShell({ card, viewportScale, children }: CardShellProps) {
       const ws = useWorkspaceStore.getState()
       const inside = cardsInGroup(card, ws.cards)
       const kept = inside.filter((c) => c.locked).length
-      const msg =
-        `Delete the group "${card.title || 'Group'}" and the ${inside.length} card${inside.length === 1 ? '' : 's'} inside it?` +
-        (kept ? `\n(${kept} locked card${kept === 1 ? '' : 's'} will be kept.)` : '')
-      if (window.confirm(msg)) ws.deleteCards([card.id, ...inside.map((c) => c.id)])
+      void confirmDialog({
+        title: `Delete "${card.title || 'Group'}" and everything in it?`,
+        message:
+          `This deletes the group and the ${inside.length} card${inside.length === 1 ? '' : 's'} inside it.` +
+          (kept ? ` ${kept} locked card${kept === 1 ? ' is' : 's are'} kept.` : '') +
+          ' You can undo this.',
+        confirmLabel: 'Delete all',
+        danger: true,
+      }).then((ok) => ok && ws.deleteCards([card.id, ...inside.map((c) => c.id)]))
       return
     }
-    const extra = isGroup ? '\n(Only the frame - the cards inside stay. Shift+click the X, or long-press it on touch, to delete them too.)' : ''
-    if (window.confirm(`Delete "${card.title || 'this card'}"?${extra}`)) {
-      deleteCard(card.id)
-    }
+    void confirmDialog({
+      title: `Delete "${card.title || 'this card'}"?`,
+      message: isGroup
+        ? 'Only the frame is deleted - the cards inside stay. To delete them too, Shift+click the X (or hold it on touch).'
+        : 'You can bring it back with undo.',
+      danger: true,
+    }).then((ok) => ok && deleteCard(card.id))
   }
 
   // Touch: holding the group's X deletes the group with its contents (Shift+click on desktop).

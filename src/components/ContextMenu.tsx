@@ -46,6 +46,7 @@ import { ADD_ENTRIES, CARD_COLORS } from '../lib/cardFactory'
 import { addEntryAt, deleteSelection, fitAll } from '../lib/boardActions'
 import { TEMPLATES, insertTemplate } from '../lib/templates'
 import { cardsInGroup } from '../lib/geometry'
+import { confirmDialog } from '../store/dialog'
 import {
   copyCardMarkdown,
   exportBoardMarkdown,
@@ -385,9 +386,12 @@ function ContextMenuInner({ menu }: { menu: ContextMenuState }) {
                     onSelect: () => {
                       const inside = cardsInGroup(targetCard, ws.cards)
                       const n = inside.length
-                      if (window.confirm(`Delete "${targetCard.title || 'Group'}" and the ${n} card${n === 1 ? '' : 's'} inside it?`)) {
-                        ws.deleteCards([targetCard.id, ...inside.map((c) => c.id)])
-                      }
+                      void confirmDialog({
+                        title: `Delete "${targetCard.title || 'Group'}" and everything in it?`,
+                        message: `This deletes the group and the ${n} card${n === 1 ? '' : 's'} inside it. You can undo this.`,
+                        confirmLabel: 'Delete all',
+                        danger: true,
+                      }).then((ok) => ok && ws.deleteCards([targetCard.id, ...inside.map((c) => c.id)]))
                     },
                   },
                 ]

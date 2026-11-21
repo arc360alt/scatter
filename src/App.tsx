@@ -15,6 +15,7 @@ import { useToastStore } from './store/toast'
 import { ContextMenu } from './components/ContextMenu'
 import { SearchBar } from './components/SearchBar'
 import { ShortcutsModal } from './components/ShortcutsModal'
+import { DialogHost } from './components/DialogHost'
 import { DrawingEditor } from './drawing/DrawingEditor'
 import { installGlobalShortcuts } from './lib/shortcuts'
 import { installPasteHandlers } from './lib/paste'
@@ -127,6 +128,7 @@ export default function App() {
       <AssistantPanel />
       <ContextMenu />
       <ShortcutsModal />
+      <DialogHost />
       {drawingEditorId && <DrawingEditor key={drawingEditorId} cardId={drawingEditorId} />}
       <ConflictModal />
       <CloudSyncButtons />

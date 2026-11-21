@@ -28,6 +28,7 @@ import { makeId } from '../lib/id'
 import { loadImageBlob, saveImageBlob } from '../lib/imageStore'
 import { resizeImageToBlob } from '../lib/imageResize'
 import { ImagePicker } from '../components/ImagePicker'
+import { confirmDialog, isDialogOpen } from '../store/dialog'
 import {
   drawElement,
   drawElements,
@@ -571,14 +572,30 @@ export function DrawingEditor({ cardId }: { cardId: string }) {
     close(null)
   }
 
-  function cancel() {
-    if (dirty && !window.confirm('Discard your changes to this drawing?')) return
+  async function cancel() {
+    if (
+      dirty &&
+      !(await confirmDialog({
+        title: 'Discard your changes?',
+        message: "Everything you've changed in this drawing since opening it will be lost.",
+        confirmLabel: 'Discard',
+        cancelLabel: 'Keep editing',
+        danger: true,
+      }))
+    )
+      return
     close(null)
   }
 
-  function clearAll() {
+  async function clearAll() {
     if (!elementsRef.current.length) return
-    if (!window.confirm('Clear the whole drawing? (You can still undo.)')) return
+    const ok = await confirmDialog({
+      title: 'Clear the whole drawing?',
+      message: 'Everything on the page is removed. You can still undo this.',
+      confirmLabel: 'Clear',
+      danger: true,
+    })
+    if (!ok) return
     commit([])
     setSelectedId(null)
   }
@@ -606,6 +623,7 @@ export function DrawingEditor({ cardId }: { cardId: string }) {
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
+      if (isDialogOpen()) return
       const h = handlersRef.current
       const typing = (e.target as HTMLElement).closest?.('textarea, input:not([type=range]):not([type=color])')
       const mod = e.ctrlKey || e.metaKey
@@ -618,7 +636,7 @@ export function DrawingEditor({ cardId }: { cardId: string }) {
         e.preventDefault()
         if (textEditRef.current) h.commitText()
         else if (selectedRef.current) setSelectedId(null)
-        else h.cancel()
+        else void h.cancel()
         return
       }
       if (typing) return

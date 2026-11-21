@@ -3,6 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faChevronDown, faDownload, faPen, faPlus, faUpload, faXmark } from '@fortawesome/free-solid-svg-icons'
 import { useWorkspaceRegistry } from '../store/workspaceRegistry'
 import { exportWorkspace, importWorkspaceFile } from '../lib/workspaceTransfer'
+import { alertDialog, confirmDialog } from '../store/dialog'
 
 export function WorkspaceSwitcher() {
   const activeId = useWorkspaceRegistry((s) => s.activeId)
@@ -59,7 +60,10 @@ export function WorkspaceSwitcher() {
       await importWorkspace(name, workspace)
       setOpen(false)
     } catch (err) {
-      window.alert(err instanceof Error ? err.message : 'Could not import that file.')
+      void alertDialog({
+        title: "Couldn't import that file",
+        message: err instanceof Error ? err.message : 'Could not import that file.',
+      })
     } finally {
       setImporting(false)
     }
@@ -112,9 +116,14 @@ export function WorkspaceSwitcher() {
                   className="workspace-item-action"
                   aria-label="Delete"
                   onClick={() => {
-                    if (window.confirm(`Delete workspace "${w.name}"? This removes all its cards.`)) {
-                      void deleteWorkspace(w.id)
-                    }
+                    void confirmDialog({
+                      title: `Delete workspace "${w.name}"?`,
+                      message: "This removes all of its cards. It can't be undone.",
+                      confirmLabel: 'Delete workspace',
+                      danger: true,
+                    }).then((ok) => {
+                      if (ok) void deleteWorkspace(w.id)
+                    })
                   }}
                 >
                   <FontAwesomeIcon icon={faXmark} />
